@@ -1,0 +1,140 @@
+        
+      
+
+       [HttpPost]
+        public async Task<ActionResult> ChangeProjectFile([FromForm] ChangeProjectFileRequestViewModel request)
+        {
+            const string jsonFileName = "zcjson.json";
+
+            var getInfoFromProjectResult = GetInfoFromProjectAttachment(request.File,request.ProjectId, jsonFileName);
+            if (!ConvertHelper.GetValueFromJsonResult<bool>(getInfoFromProjectResult, "isSuccess")) 
+                return getInfoFromProjectResult;
+
+            var convertFileToByteResult = ConvertFileToByte(request.File);    
+            if (!ConvertHelper.GetValueFromJsonResult<bool>(convertFileToByteResult, "isSuccess"))
+                return convertFileToByteResult;
+
+            var coreRequest = new ChangeProjectFileCoreRequestModel
+            {
+                ProjectId = request.ProjectId,
+                FileAsByte = ConvertHelper.GetValueFromJsonResult<Byte[]>(convertFileToByteResult, "result"),  
+                User = user.Username
+            };
+
+            return getInfoFromProjectResult;
+        }
+
+
+        /// <summary> 
+        /// Proje dosyası içindeki zcjson.json attachment ını string json formatında geriye döndürür.
+        ///  Kullanıcının yüklediği Proje Dosyasında eğer zcjson.json  attachment olarak bulunamaz ise geçersiz dosyadır ve hata fırlatır. 
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="projectId"></param>
+        /// <param name="jsonFileName"></param> 
+        /// <returns></returns>
+        private JsonResult GetInfoFromProjectAttachment(IFormFile file,int projectId, string jsonFileName)
+        { 
+            try
+            {
+                var convertFileToByteResult = ConvertFileToByte(file); 
+                if (!ConvertHelper.GetValueFromJsonResult<bool>(convertFileToByteResult, "isSuccess"))
+                    return convertFileToByteResult;
+
+                var fileAsByte = ConvertHelper.GetValueFromJsonResult<Byte[]>(convertFileToByteResult, "result");
+                var writeReader = new PdfReader(fileAsByte);
+                var files = new Dictionary<string, byte[]>();
+                var eFLength = 0;
+
+                var names = writeReader.Catalog.GetAsDict(PdfName.NAMES);
+                if (names != null)
+                {
+                    var embeddedFiles = names.GetAsDict(PdfName.EMBEDDEDFILES);
+                    if (embeddedFiles != null)
+                    {
+                        var fileSpecs = embeddedFiles.GetAsArray(PdfName.NAMES);
+                        if (fileSpecs != null)
+                        {
+                            eFLength = fileSpecs.Size;
+
+                            for (int i = 0; i < eFLength; i++)
+                            {
+                                i++;
+                                var fileSpec = fileSpecs.GetAsDict(i);
+                                if (fileSpec != null)
+                                {
+                                    var refs = fileSpec.GetAsDict(PdfName.EF);
+                                    foreach (PdfName key in refs.Keys)
+                                    {
+                                        var stream = (PRStream)PdfReader.GetPdfObject(refs.GetAsIndirectObject(key));
+
+                                        if (stream != null)
+                                        {
+                                            files.Add(fileSpec.GetAsString(key).ToString(), PdfReader.GetStreamBytes(stream));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                var fileAsbyte = JsonConvert.SerializeObject(files[$"{jsonFileName}"]);
+                var blob = Convert.FromBase64String(fileAsbyte.Replace("\"", ""));
+                var projectInfo = JsonConvert.DeserializeObject<ProjectPdfInfoCoreModel>(Encoding.UTF8.GetString(blob));
+
+                if (projectInfo.ProjectData.ProjeID == 0)
+                {
+                    return Json(new { isSuccess = false, message = string.Format($"Yüklediğiniz proje dosyası içerisinde 'proje id' bulunmamaktadır!") });
+                }
+                else if (projectId != projectInfo.ProjectData.ProjeID)
+                {
+                    return Json(new { isSuccess = false, message = string.Format($"Lütfen '{projectId}' nolu projeye ait dosyayı yükleyiniz!") });
+                }
+            }
+            catch (Exception)
+            {
+                return Json(new { isSuccess = false, message = string.Format($"Lütfen geçerli bir proje dosyası yükleyiniz!") });
+            }
+             
+            return Json(new { isSuccess = true, message = "Başarılı" });
+        }
+
+
+        private JsonResult ConvertFileToByte(Microsoft.AspNetCore.Http.IFormFile file)
+        {
+            try
+            {
+                using (var ms = new System.IO.MemoryStream())
+                {
+                    file.CopyTo(ms); 
+                    return Json(new { isSuccess = true, result = ms.ToArray() });
+                }
+            }
+            catch (Exception)
+            {
+                return Json(new { isSuccess = false, result = string.Format($"Dosya işlemleri sırasında hata alındı!") });
+            }
+        }
+
+          public static T GetValueFromJsonResult<T>(JsonResult result, string valueName)
+        {
+            return (T)result.Value.GetType().GetProperty(valueName).GetValue(result.Value);
+        }
+
+
+
+
+
+
+
+
+******************  CLASS LAR *********************
+
+public class ChangeProjectFileRequestViewModel : BaseRequestViewModel
+    {
+        public int ProjectId { get; set; }
+
+        public IFormFile File { get; set; }
+    }
+

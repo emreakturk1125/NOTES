@@ -1,0 +1,200 @@
+
+********************* Commands ********************* 
+
+-> Staged & Unstaged 
+-> Amend 
+-> Revert
+-> Stash 
+    * Örneğin; Main branch de değişiklik yaptın. Fakat o değişiklik  yeni oluşturduğun "newBranch" de olması gerekiyordu.
+    * O değişikliği stash'e attıktan sonra , oluşturduğun yeni branch e aktarabilirsin. Aktarım yapıldıktan sonra stach silinir otomatik
+-> Cherry Pick nedir
+    * Başka bir branch te yapılan commit, farklı branch'e bu komut sayesinde taşınabilir
+
+********************** Eklentiler ********************
+
+-> "GitMerger" eklentisi, merge işlemleri için
+-> "Git History" eklentisi, commit tarihçesi için 
+
+
+********************** Visual Studio Code İşlemleri *********************
+
+-> Branch silmek için Arama kısmına    "> Git:"  ifadesi yazınca bütün işlemler çıkıyor
+     örnek;   Git:Commit
+              Git:Merge Branch  
+
+
+***********************  Full Git Commands ****************
+
+ # git init
+
+ Bulunduğu konumda git repository si oluşturur.
+
+ # git add .
+
+ tüm değişiklikleri staged(commit öncesi) alanına taşır
+
+ # git add [file]
+
+ ilgili dosya ile alakalı tüm değişiklikleri staged(commit öncesi) alanına taşır
+
+ # git commit -m "yazılacak yorum"
+
+ staged alanındaki değişikleri version layarak repo'ya taşır 
+ 
+ # git commit -am "yazılacak yorum"
+
+ hem add (git add) hemde commit (git commit) işlemini yapar
+
+ # git status
+
+ henüz commit edilmemiş yeni veya güncellenen dosyaları listeler
+
+ # git log
+
+ tüm commit geçmişini görüntüler
+
+ # git log --pretty=oneline
+
+ 
+ tüm commit geçmişini daha sade görüntüler
+
+ # git show [commitnumarası] : [file]
+
+ belirli bir commit detayını görüntüler 
+
+ # git checkout [file]
+
+ Staged alanına eklenmemiş son yapılan değişikliği geri almak içindir. (git add komutunu çalıştırmadan önceki değişiklikleri)
+
+ # git reset [file]
+
+ Staged alanına alınmış yani (git add) komutu çalıştırılmış son yapılan değişiklikleri, staged öncesine almak içinidir. Sonrasında (git checkout) çalışırılırsa değişiklikler tamamen geri alınmış olur
+
+ # git reset hard
+
+ Staged alanına alınmış yani (git add) komutu çalıştırılmış son yapılan değişiklikleri, direk siler
+
+ # git branch [newBranch]
+
+ Verilen isim ile yeni bir branch oluşturur
+
+ # git branch 
+
+ branch leri listeler 
+
+ # git branch [-av]
+
+ -av ile remote branch leri de listeler
+
+ # git branch -d [branchName]
+
+ branch siler
+
+# git checkout [branchName]
+
+ismi verilen branch e geçiş yapar
+
+# git merge [BranchB]
+
+içinde bulunulan branch e ismi verilen branch i merge eder
+
+# git tag 'tagName'
+
+son commit'e tag verir
+
+# git tag 
+
+tag'leri listeler
+
+# git show 'tagName'
+
+tag verilmiş commit'i inceler
+
+# git tag -a 'newTag' -m 'message' [commitId]
+
+eski bir commit'e tag verir
+
+# git tag -d v.1.0
+
+v.1.0 isimli tag'i siler
+
+# git stash 
+
+stash oluşturur (yapılan son değişikliği daha sonra kullanmak üzere saklamaktır.)
+
+# git stash save -a 'message'
+
+yapılan son değişiklik için açıklamalı stash oluşturur 
+
+# git stash list
+
+stash'leri listeler
+
+# git stash apply "stash@{n}"
+
+belli bir stash'i veya son stash'i listeden silmeden uygular
+
+# git stash pop "stash@{n}"
+
+belli bir stash'i veya son stash'i listeden siler ve uygular
+
+# git drop drop "stash@{n}"
+
+belli bir stash'i veya son stash'i listeden siler 
+
+# git rm --cached  index2.html 
+ 
+Herhangibir dosyayı commit ettikten sonra  .gitignore a eklerseniz yine değişiklikleri takip edecektir. Bu durumu engellemek için aşağıdaki komut çalıştır; 
+
+
+
+ **********************  .gitignore dosyası tanımlamaları ****************
+
+
+-> Tam ismi belli dosyayı takip etmemek.
+
+#  index.html
+
+ -> bin klasörü altındaki debug klasörünü takip etmemek
+
+#   bin/debug
+
+-> bin klaösürünü takip etmemek
+
+#   bin/
+
+-> .css uzantılı dosyaları takip etmemek
+
+#   *.css
+
+-> bin klasörü altındaki .css uzantılı dosyaları takip etmemek
+
+# bin/*.css
+
+-> bin klasörü altındaki herhangibir klasörünü içindeki  .css uzantılı dosyaları takip etmemek
+
+# bin/*/*.css
+
+->  ilk harfi "B" ya da "b" ile başlayan "bin" isimli klasörü takip etmemek
+
+# [Bb]in/
+
+-> gitignore dosyasına yazdıktan sonra.. terminalde 
+Ctrl + ile açıp, "git rm --cached  <dosya yolu>"  komutu ile takibi engellenir
+
+
+********** Git Commands Çalıştırma Araçları ***********
+
+-> Git Bash
+-> Power Shell
+-> Commmand Prop
+
+Bunlardan birini açtıktan sonra;
+ 
+ -> "cd .."  ile bir üst klasöre
+ -> "cd <Klasörİsmi>"  ile içindeki bir klasöre girebilirsin
+ -> bir iki harf yazıp tab tuşuna basarsan otomatik tamamlar 
+ -> "dir" komutu bulunduğun dizindeki tüm klasörleri listeler 
+ -> Komut çalıştırma araçları üzerinde herhangibir şeyin üzerinde sağ tık yaparsan kopyalar
+ -> Yapıştıracağın yere tekrardan sağ tık yaparsan, yapıştırır.
+ 

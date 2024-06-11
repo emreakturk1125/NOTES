@@ -1,0 +1,157 @@
+    private void FileProcess()
+        {
+            int counter = 0;
+            pbFileProcess.Minimum = 0;
+            pbFileProcess.Maximum = projectFileList.Count();
+            pbToByte.Minimum = 0;
+            pbToByte.Maximum = projectFileList.Count();
+
+            Parallel.ForEach(projectFileList, item =>
+            {
+                bool IsPath = chboxPath.Checked;
+                string fileDownload;
+                fileDownload = IsPath ? item.FileUrl.Replace("http://evrak.zetacad.com", "G:").Replace(@"/", @"\") : item.FileUrl;
+
+                counter++;
+                using (var webClient = new WebClient())
+                    item.FileAsByte = webClient.DownloadData(fileDownload); // Url Byte'a çevriliyor
+                pbToByte.Value = counter;
+
+            });
+
+            counter = 0;
+
+            foreach (var item in projectFileList)
+            {
+
+                counter++;
+                PdfDocument doc = new PdfDocument();
+                doc.LoadFromBytes(item.FileAsByte);
+
+                StringBuilder buffer = new StringBuilder();
+                foreach (PdfPageBase page in doc.Pages)
+                {
+                    buffer.Append(page.ExtractText());
+                }
+
+                var text = buffer.ToString().ToUpper();
+
+                int dn65_Count = GetWordCount("DN65", text);
+                int dn80_Count = GetWordCount("DN80", text);
+
+                var apartment = GetWord("DAİRE İÇİ KR", text);
+                var column = GetWord("KOLON KR", text);
+                var total = GetWord("TOPLAM KR", text);
+
+                JsonFileModel excel = new JsonFileModel()
+                {
+                    ProjectId = item.ProjectId,
+                    Dn65_Count = dn65_Count,
+                    Dn80_Count = dn80_Count,
+                    Daire = apartment.Trim(),
+                    Kolon = column.Trim(),
+                    Toplam = total.Trim()
+                };
+
+                JsonFileModelList.Add(excel);
+
+                lblCounter.Text = counter.ToString();
+                pbFileProcess.Value = counter;
+            }
+
+            JsonFileModelList = JsonFileModelList.Where(x => x.Dn65_Count > 1 || x.Dn80_Count > 1).ToList();
+            var json = JsonConvert.SerializeObject(JsonFileModelList);
+            CreateAndWriteFile(out textFilePath, json);
+
+            btnGetAllData.Enabled = true;
+            btnExcel.Enabled = true;
+            btnOpenTextFile.Enabled = true;
+
+            MessageBox.Show("Dosyanın yüklendiği klasör yolu : " + textFilePath);
+
+
+        }
+
+        public int GetWordCount(string searchingWord, string text)
+        {
+            int startIndex = 0, count = 0;
+
+            while (startIndex >= 0)
+            {
+                startIndex = text.IndexOf(searchingWord, startIndex);
+                if (startIndex >= 0)
+                {
+                    startIndex++;
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        public string GetWord(string searchingWord, string text)
+        {
+            int startIndex = 0;
+            string sentences;
+            startIndex = text.ToUpper().IndexOf(searchingWord, startIndex);
+
+            if (startIndex > -1)
+                try
+                {
+                    sentences = text.Substring(startIndex, 100);
+                }
+                catch  
+                {
+                    sentences = text.Substring(startIndex, 45);
+                }
+            else
+                sentences = "";
+
+            return sentences;
+        }
+
+        public static void CreateFolder(string basePath)
+        {
+            if (!Directory.Exists(basePath))
+            {
+                try
+                {
+                    Directory.CreateDirectory(basePath);
+                }
+                catch (Exception)
+                {
+                    // do nothing
+                }
+            }
+            string folderPath = Path.Combine(basePath);
+            if (!Directory.Exists(folderPath))
+            {
+                try
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+                catch (Exception)
+                {
+                    // Do Nothing
+                }
+            }
+        }
+
+        public void CreateAndWriteFile(out string path, string content)
+        {
+
+            var basePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "DN65_DN80_Folder");
+            var folderPath = Path.Combine(basePath);
+            var gdfNo = txtGdfno.Text;
+            var startDate = dtpStart.Value;
+            var endDate = dtpEnd.Value;
+
+            CreateFolder(basePath);
+
+            path = Path.Combine(folderPath, gdfNo + "__" + startDate.ToString("yyyyMMdd") + "_" + endDate.ToString("yyyyMMdd") + ".txt");
+
+            using (StreamWriter sw = File.CreateText(path))
+            {
+                sw.WriteLine(content);
+            }
+        }
