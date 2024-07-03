@@ -1,4 +1,72 @@
+***************************************** GİT VERSION CONTROL  (GİT BASH)  START**************************************************
+-> ilk olarak git kurulmalıdır  "git download" 
 
+ -> Kurulum yapıldıktan sonra tüm işletim sistemleri için geçerli olan "Git Bash" terminali üzerinden bazı komut kullanım örnekleri
+
+	• "ls" komutu bulunduğun klasörün içindekileri gösterir
+	• "pwd" güncel olarak bukunduğun klasörü gösteririr
+	• "cd Documents"  Documents klaösrü içine gir demektir (klasörün ilk bir kaç harfini yazıp sonrasında TAB tuşuna basılırsa otomatik tamamlar)
+	• "cd .." bir önceki klasöre git demektir
+	• "clear" terminal ekranını temizler
+
+    *     "touch not.txt"  bulunuduğun klasör içinde text dosyası oluşturur
+    *      "rm touch.txt"  text dosyasını siler (rm sadece dosyaları siler)
+    *      "mkdir OrnekKlasor"  OrnekKlasor adlı klasör oluşturur
+    *      "rm -rf  OrnekKlasor"  klasör silmek için bu komut
+
+
+   *   "git"  git ile alakalı komutları gösteririr
+   *   "git version"  git versionu nu gösterir
+   *    "git status" komutu ile içinde bulunduğun klasörün git ile bağlantısı olup olmadığı kontrol edilir
+
+-> Kullanıcı Adı Soyadı ve Email bilgilerini git'e tanımlama
+
+    *     git config --global user.name "Emre Aktürk" ile kulanıcı adı oluşturabilirsin
+    *     git config --global user.name   kullanıcı adını öğrenebilirsin
+	• git config --global user.email "akturk_emre@hotmail.com"
+	• git config --global user.email 
+
+-> Örnek Proje Açma
+
+	• "mkdir GitKursu"  her hangibir yerde ilk olarak klasör oluşturulur
+	• "git status" komutu ile o klasörün git ile bağlantısı olup olmadığı, bağlantı var ise herhangibir bekleyen işlem var mı tüm durumlar kontrol edilir
+	•  "git init" ile bulunduğun klasör git'e bağlanmış olur.  Bulunduğu konumda git repository si oluşturur.
+	• "touch test.txt" ile text dosyası ekledik
+	• "git add test.txt" ilgili dosya ile alakalı tüm değişiklikleri staged(commit öncesi) alanına taşır
+	
+-> gitignore dosyası işlmeleri
+
+	• "touch .gitignore" bulunduğun klasör içinde girignore doyası oluşur
+	• Gitignore dosyasına eklediğimiz dosya ismilerine göre takibi engeller
+
+-> Branch işlemleri
+
+	• "git branch pilot" master üzerinden yeni branch oluşturur
+	• "git branch" branch leri listeler
+	• "git switch pilot" ya da "git checkout pilot" pilot branch ine geçer
+	• "git branch -d branchName"   braanch adına göre o branch I siler
+
+ Fast forwarding : master branch'inin son halinden yeni bir branch alınıp, yeni geliştirmeler yapıldıktan sonra tekrardan master branch'e merge etme işlemidir.
+
+-> Stash işlemleri
+
+	• " git stash"  stash oluşturur (yapılan son değişikliği daha sonra kullanmak üzere saklamaktır.)
+
+	•  git stash save -a 'message'  yapılan son değişiklik için açıklamalı stash oluşturur 
+
+	•  "git stash list" stash'leri listeler
+
+	•  "git stash apply stash@{n}" belli bir stash'i listeden silmeden uygular
+
+	•  "git stash pop stash@{n}"  belli bir stash'i listeden siler ve uygular
+
+	• "git stash pop"  en sondaki stash'i siler ve uygular
+
+	• "git stash clear"  tüm stash listesini siler
+
+
+
+***************************************** GİT VERSION CONTROL  (GİT BASH)  END**************************************************
 ********************* Commands ********************* 
 
 -> Staged & Unstaged 
